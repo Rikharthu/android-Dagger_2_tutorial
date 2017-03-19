@@ -2,6 +2,7 @@ package com.twistedeqations.dagger2tutorial;
 
 import android.app.Activity;
 import android.app.Application;
+import android.util.Log;
 
 import com.squareup.picasso.Picasso;
 import com.twistedeqations.dagger2tutorial.components.DaggerGithubApplicationComponent;
@@ -16,6 +17,8 @@ import timber.log.Timber;
 
 
 public class GithubApplication extends Application {
+
+    private GithubApplicationComponent component;
 
     public static GithubApplication get(Activity activity) {
         return (GithubApplication) activity.getApplication();
@@ -45,13 +48,31 @@ public class GithubApplication extends Application {
         // However, only modules that have constructor arguments must be specified during build
         // That's how we specify context for ContextModule
         // see the generated DaggerGithubApplicationComponent's build() method for more info
-        GithubApplicationComponent component = DaggerGithubApplicationComponent.builder()
+        component = DaggerGithubApplicationComponent.builder()
                 .contextModule(new ContextModule(this))
                 .build();
 
         // access these methods
         githubService = component.getGithubService();
         picasso = component.getPicasso();
+
+        // Will have different memory addresses! => not a Singleton (yet)
+        // UPDATED: we added GithubApplicationScope => only one instance of each module method per Component
+        GithubService githubService2 = component.getGithubService();
+        Picasso picasso2 = component.getPicasso();
+        GithubService githubService3 = component.getGithubService();
+        Picasso picasso3 = component.getPicasso();
+        // print memory addresses
+        Timber.i("Dagger 2: githubService "+githubService);
+        Timber.i("Dagger 2: githubService2 "+githubService2);
+        Timber.i("Dagger 2: githubService3 "+githubService3);
+        Timber.i("Dagger 2: picasso "+picasso);
+        Timber.i("Dagger 2: picasso2 "+picasso2);
+        Timber.i("Dagger 2: picasso3 "+picasso3);
+    }
+
+    public GithubApplicationComponent getComponent() {
+        return component;
     }
 
     public GithubService getGithubService() {

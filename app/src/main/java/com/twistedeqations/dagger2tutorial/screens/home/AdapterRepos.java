@@ -7,10 +7,13 @@ import android.widget.BaseAdapter;
 
 import com.squareup.picasso.Picasso;
 import com.twistedeqations.dagger2tutorial.models.GithubRepo;
+import com.twistedeqations.dagger2tutorial.screens.HomeActivity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class AdapterRepos extends BaseAdapter {
 
@@ -18,7 +21,14 @@ public class AdapterRepos extends BaseAdapter {
     private final List<GithubRepo> repoList = new ArrayList<>(0);
     private final Context context;
 
-    public AdapterRepos(Context context, Picasso picasso) {
+    // @Inject here replecaes HomeActivityModule's getAdapterRepos() method
+    // by passing HomeActivity instead of Context
+    // @Inject on the constructor makes Dagger pass parameters to it
+    // as well as it will use this constructor to create an instance for us
+    // Which will be available in modules
+    // This is very useful in classes, on which creation we have control
+    @Inject
+    public AdapterRepos(HomeActivity context, Picasso picasso) {
         this.context = context;
         mPicasso = picasso;
     }

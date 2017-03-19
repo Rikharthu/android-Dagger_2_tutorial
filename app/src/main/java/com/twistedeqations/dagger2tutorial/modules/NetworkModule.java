@@ -2,7 +2,12 @@ package com.twistedeqations.dagger2tutorial.modules;
 
 import android.content.Context;
 
+import com.twistedeqations.dagger2tutorial.annotations.ApplicationContextQualifier;
+import com.twistedeqations.dagger2tutorial.annotations.GithubApplicationScope;
+
 import java.io.File;
+
+import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -15,29 +20,36 @@ import timber.log.Timber;
 public class NetworkModule {
 
     @Provides
-    public HttpLoggingInterceptor loggingInterceptor(){
-        return new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+    @GithubApplicationScope
+    public HttpLoggingInterceptor loggingInterceptor() {
+        HttpLoggingInterceptor interceptor;
+        interceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override
             public void log(String message) {
                 Timber.i(message);
             }
         });
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        return interceptor;
     }
 
     @Provides
-    public Cache cache(File cachefile){
-        return new Cache(cachefile, 10*1024*1024); // 10MB
+    @GithubApplicationScope
+    public Cache cache(File cachefile) {
+        return new Cache(cachefile, 10 * 1024 * 1024); // 10MB
     }
 
     @Provides
-    public File cacheFile(Context context){
-        File cachefile = new File(context.getCacheDir(),"okhttp_cache");
+    @GithubApplicationScope
+    public File cacheFile(@ApplicationContextQualifier Context context) {
+        File cachefile = new File(context.getCacheDir(), "okhttp_cache");
         cachefile.mkdirs();
         return cachefile;
     }
 
     @Provides
-    public OkHttpClient okHttpClient(HttpLoggingInterceptor loggingInterceptor, Cache cache){
+    @GithubApplicationScope
+    public OkHttpClient okHttpClient(HttpLoggingInterceptor loggingInterceptor, Cache cache) {
         return new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
                 .cache(cache)
